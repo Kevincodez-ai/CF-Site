@@ -1,0 +1,18 @@
+{
+  "_comment": "Fallback stats shown ONLY if the live Apps Script fetch fails. Replace every number below with a real snapshot — see HOW TO UPDATE in the chat reply. Keep this file next to your dashboard HTML, filename and path must match FALLBACK_JSON_URL in the dashboard's <script>.",
+  "totalStudents": 141,
+  "totalTeams": 47,
+  "year2Students": 66,
+  "year3Students": 75,
+  "departmentStats": [
+    { "department": "CSE", "teams": 14, "students": 42 },
+    { "department": "IT", "teams": 9, "students": 27 },
+    { "department": "AI & DS", "teams": 7, "students": 21 },
+    { "department": "ECE", "teams": 6, "students": 18 },
+    { "department": "AI & ML", "teams": 5, "students": 15 },
+    { "department": "EEE", "teams": 3, "students": 9 },
+    { "department": "MECHANICAL", "teams": 2, "students": 6 },
+    { "department": "CSBS", "teams": 1, "students": 3 }
+  ],
+  "updatedAt": "2026-08-10T09:00:00.000Z"
+}
