@@ -691,13 +691,13 @@
 
     <!-- Header -->
     <h2 class="text-3xl md:text-4xl text-center text-accent mb-4 drop-shadow-lg tracking-tight">
-      Live Registrations
+      Registration Statistics
     </h2>
 
     <div class="flex items-center justify-center gap-3 mb-14 flex-wrap">
       <span class="w-2.5 h-2.5 rounded-full bg-danger rd-live-dot"></span>
-      <span class="text-xs tracking-[0.25em] uppercase text-gray-400">Live Stats</span>
-      <span class="text-xs text-gray-600" id="rd-updated">· connecting…</span>
+      <span class="text-xs tracking-[0.25em] uppercase text-gray-400">Refresh to view updated stats</span>
+      <span class="text-xs text-gray-600" id="rd-updated">Finding Warriors .....</span>
       <button id="rd-refresh-btn" onclick="rdFetchStats()"
         class="rd-refresh-btn inline-flex items-center gap-1.5 text-xs text-accent border border-accent/40 rounded-full px-3 py-1 tracking-wide uppercase">
         <svg id="rd-refresh-icon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -771,7 +771,7 @@
     <div id="rd-panel" class="rd-panel">
       <h3 class="text-2xl text-glow mb-6 text-center">Department-wise Team Count</h3>
       <div id="rd-dept-list" class="bg-secondary border border-white/5 rounded-2xl p-6 md:p-8 space-y-5">
-        <p class="text-sm text-gray-500 text-center">No registrations yet.</p>
+        <p class="text-sm text-gray-500 text-center">No Warriors yet.</p>
       </div>
     </div>
 
@@ -910,7 +910,7 @@
   const DASHBOARD_API_URL = "https://script.google.com/macros/s/AKfycbw5ytXoZciuDg3o1K8O5crQD7vkOKYvXGUdsS2fSrdK2rOx2TCOtWNyJer81C4iDNBo/exec";
   const DASHBOARD_API_KEY = "8f3d91a7c4e2b5f68d90ab13ef76c24891d7e5b2c3a4f6819e0d5c7b8a2f6e41"; 
   const FALLBACK_JSON_URL = "./fallback-stats.json"; // hand-edited backup, used only if the live fetch fails
-.
+
 
   // Toggle department-wise panel
   function rdTogglePanel() {
