@@ -156,8 +156,6 @@
         <p class="mt-2"><span class="text-glow">Venue:</span> CC20 or CC21</p>
       </div>-->
       <!-- ======= Header ======= -->
-
-<!-- ======= Header ======= -->
 <header class="fixed top-0 left-0 w-full z-50 bg-black/60 backdrop-blur-md">
   <div class="max-w-7xl mx-auto flex items-center justify-between px-5 py-3">
 
@@ -216,7 +214,8 @@
       ☰
     </button>
     
-      <div id="mobile-menu" class="hidden lg:hidden bg-black/95 absolute top-full left-0 w-full">
+    <!-- Mobile header view -->
+    <div id="mobile-menu" class="hidden lg:hidden bg-black/95 absolute top-full left-0 w-full">
       <a href="/index.html" class="block px-8 py-4 text-white hover:bg-[#FFC451] hover:text-black">Home</a>
       <a href="/about.html" class="block px-8 py-4 text-white hover:bg-[#FFC451] hover:text-black">About</a>
       <a href="/Inter_Prep.html" class="block px-8 py-4 text-white hover:bg-[#FFC451] hover:text-black">Interview Prep</a>
@@ -972,13 +971,21 @@
       return;
     }
     var maxTeams = Math.max.apply(null, list.map(function (d) { return d.teams; }));
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
     container.innerHTML = list.map(function (d) {
       var pct = maxTeams > 0 ? Math.round((d.teams / maxTeams) * 100) : 0;
       return (
         '<div class="rd-dept-row">' +
           '<div class="flex justify-between text-sm mb-1.5">' +
-            '<span class="text-accent font-semibold">' + d.department + '</span>' +
-            '<span class="text-gray-400">' + d.teams + ' team' + (d.teams === 1 ? '' : 's') + '</span>' +
+            '<span class="text-accent font-semibold">' + escapeHtml(d.department) + '</span>' +
+            '<span class="text-gray-400">' + parseInt(d.teams, 10) + ' team' + (parseInt(d.teams, 10) === 1 ? '' : 's') + '</span>' +
           '</div>' +
           '<div class="w-full h-2 bg-primary rounded-full overflow-hidden">' +
             '<div class="rd-bar-fill h-full bg-gradient-to-r from-accent to-glow rounded-full" style="width:' + pct + '%"></div>' +
@@ -990,6 +997,7 @@
 
   function rdSetUpdatedLabel(iso, state) {
     var el = document.getElementById('rd-updated');
+    if (!el) return;
     if (state === 'offline') { el.textContent = '· not connected'; el.className = 'text-xs text-danger'; return; }
     if (state === 'fallback') { el.textContent = '· showing backup data'; el.className = 'text-xs text-accent'; return; }
     var d = new Date(iso);
@@ -1177,7 +1185,6 @@
       .countdown-sep { font-size: 1.25rem; }
     }
 
-    /* Fix for deployment: Ensure button is clickable when timer ends */
     #register-btn.register-open {
       background-color: #FFD700; /* Gold background */
       color: #000000; /* Black text */
@@ -1203,130 +1210,407 @@
       50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.9); }
     }
 </style>
-<!--Mobile header view-->
 <script>
-    // --- Countdown & Registration Button Logic ---
-    (function () {
-      // Timeline dates locked to IST (+05:30)
-      var openDate = new Date("2026-08-06T21:00:00+05:30").getTime();
-      var closeDate = new Date("2026-08-19T21:00:00+05:30").getTime();
-      
-      var elDays = document.getElementById("cd-days");
-      var elHours = document.getElementById("cd-hours");
-      var elMins = document.getElementById("cd-mins");
-      var elSecs = document.getElementById("cd-secs");
-      var wrapper = document.getElementById("countdown-timer");
-      var registerBtn = document.getElementById("register-btn");
-      
-      var registrationFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSezM6_wyqO1kXO2zDY7mMvCv1CYM_JDpTLwqdYn0A4yD4u5VQ/viewform";
-      var timerInterval = null;
+    // --- Dynamic Query & Backend-Controlled Multi-Round Workflow ---
+    (async function () {
+      // ── LOCAL DEV URLS ────────────────────────────────────────
+      const BACKEND_API_URL = "http://localhost:5000";
+      const CONTEST_PLATFORM_URL = "http://localhost:5173";
 
-      function pad(n) {
-        return String(n).padStart(2, "0");
+      // External Contest / Registration Links:
+      const GFG_ROUND0_URL = "https://practice.geeksforgeeks.org/contest/clash-of-coders-round0";
+      const HACKERRANK_R2_PHASE1_REG_URL = "https://www.hackerrank.com/contests/coc-round2-phase1";
+      const HACKERRANK_R2_PHASE2_REG_URL = "https://www.hackerrank.com/contests/coc-round2-phase2";
+      const HACKERRANK_R2_PHASE3_REG_URL = "https://www.hackerrank.com/contests/coc-round2-phase3";
+
+      const params = new URLSearchParams(window.location.search);
+      const round = params.get("round");
+      const phase = params.get("phase");
+
+      const registerBtn = document.getElementById("register-btn");
+      const enterSection = document.getElementById("enter-contest-section");
+      const countdownHeading = document.getElementById("countdown-heading") || document.querySelector("h2 span");
+      const countdownTimer = document.getElementById("countdown-timer");
+
+      // Helper to sanitize text before inserting into innerHTML
+      function sanitizeHtmlText(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
       }
 
-      function updateCountdown() {
-        var now = new Date().getTime();
-        var targetDate;
-        var phase;
+      // Determine requested stage
+      let requestedStage = null;
+      if (round === "0") requestedStage = "round0";
+      else if (round === "1") requestedStage = "round1";
+      else if (round === "2" && phase === "1") requestedStage = "round2_phase1";
+      else if (round === "2" && phase === "2") requestedStage = "round2_phase2";
+      else if (round === "2" && phase === "3") requestedStage = "round2_phase3";
 
-        // Determine current phase
-        if (now < openDate) {
-          phase = 1; // Before open
-          targetDate = openDate;
-        } else if (now >= openDate && now < closeDate) {
-          phase = 2; // Open, before close
-          targetDate = closeDate;
-        } else {
-          phase = 3; // Closed
+      // If no valid round query, initialize default countdown
+      if (!requestedStage) {
+        initDefaultCountdown();
+        return;
+      }
+
+      // Fetch active contest stage from backend (fails closed)
+      let activeStage = null;
+      try {
+        const res = await fetch(`${BACKEND_API_URL}/api/contest/status`, { cache: "no-store" });
+        const data = await res.json();
+        if (data.success && data.activeStage) {
+          activeStage = data.activeStage;
+        }
+      } catch (err) {
+        console.warn("[COC] Backend status API offline. Using fallback.", err);
+      }
+
+      // If backend responded and requested stage is NOT active:
+      if (activeStage && requestedStage !== activeStage) {
+        if (countdownHeading) countdownHeading.innerText = "STAGE NOT ACTIVE";
+        if (countdownTimer) countdownTimer.style.display = "none";
+
+        const stageNames = {
+          round0: "Round 0",
+          round1: "Round 1",
+          round2_phase1: "Round 2 Phase 1",
+          round2_phase2: "Round 2 Phase 2",
+          round2_phase3: "Round 2 Phase 3",
+        };
+        const reqName = sanitizeHtmlText(stageNames[requestedStage] || requestedStage);
+        const actName = sanitizeHtmlText(stageNames[activeStage] || activeStage);
+
+        if (registerBtn) {
+          registerBtn.innerText = `${reqName.toUpperCase()} IS NOT LIVE`;
+          registerBtn.disabled = true;
+          registerBtn.classList.remove("register-open");
+          registerBtn.classList.add("register-closed");
+          registerBtn.style.cursor = "not-allowed";
         }
 
-        // Handle Button States
-        if (phase === 1) {
-          // Phase 1: Waiting to open
-          registerBtn.innerText = 'Registrations open on 6th August 2026 at 9:00 PM';
-          registerBtn.disabled = true;
-          registerBtn.classList.remove('register-open', 'register-closed');
-        } else if (phase === 2) {
-                                     // Phase 2: Currently open
-          registerBtn.innerHTML = `Register Now <svg 
-        xmlns="http://www.w3.org/2000/svg"
-        width="25"
-        height="25"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        style="margin-left: 8px; vertical-align: middle; display: inline-block;"
-    >
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-        <polyline points="12 5 19 12 12 19"></polyline>
-    </svg>`;
+        if (enterSection) {
+          enterSection.innerHTML = `
+            <div class="bg-secondary p-6 rounded-xl border border-red-500/40 text-center max-w-lg mx-auto">
+              <p class="text-red-400 font-bold text-lg mb-2">⛔ ${reqName} is currently inactive.</p>
+              <p class="text-gray-300 text-sm mb-4">Currently active stage: <strong class="text-[#FFD700]">${actName}</strong>.</p>
+            </div>
+          `;
+        }
+        return;
+      }
+
+      // ── 0. ROUND 0 (GFG): ?round=0 ────────────────────────────
+      if (requestedStage === "round0") {
+        if (countdownHeading) countdownHeading.innerText = "ROUND 0 IS LIVE";
+        if (countdownTimer) countdownTimer.style.display = "none";
+
+        if (registerBtn) {
+          registerBtn.innerHTML = `ROUND 0 IS LIVE ⚔`;
           registerBtn.disabled = false;
-          registerBtn.classList.add('register-open');
-          registerBtn.classList.remove('register-closed');
-          
-          // Attach click event only once
-          if (!registerBtn.hasAttribute('data-listener-attached')) {
-            registerBtn.addEventListener('click', function() {
-    var enterContestSection = document.getElementById('enter-contest-section');
-
-    if (enterContestSection) {
-        var targetPosition =
-            enterContestSection.getBoundingClientRect().top +
-            window.scrollY -
-            120;
-
-        window.scrollTo({
-            top: targetPosition,
-            behavior: 'smooth'
-        });
-    }
-});
-            registerBtn.setAttribute('data-listener-attached', 'true');
-          }
-        } else if (phase === 3) {
-          // Phase 3: Closed
-          registerBtn.innerText = 'Registrations are closed';
-          registerBtn.disabled = true;
-          registerBtn.classList.add('register-closed');
-          registerBtn.classList.remove('register-open');
-          
-          // Change countdown text and stop timer
-          if (wrapper) {
-            wrapper.innerHTML = '<span style="color:#FFD700;font-weight:700;font-size:1.1rem;">Registrations are Closed!</span>';
-          }
-          clearInterval(timerInterval);
-          return;
+          registerBtn.classList.add("register-open");
+          registerBtn.classList.remove("register-closed");
+          registerBtn.onclick = () => {
+            window.open(GFG_ROUND0_URL, "_blank");
+          };
         }
 
-        // Handle Countdown Timer calculation
-        var diff = targetDate - now;
-        if (diff <= 0) {
-          // Edge case fallback
-          elDays.textContent = "00";
-          elHours.textContent = "00";
-          elMins.textContent = "00";
-          elSecs.textContent = "00";
-        } else {
-          var days = Math.floor(diff / (1000 * 60 * 60 * 24));
-          var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          var mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          var secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-          elDays.textContent = pad(days);
-          elHours.textContent = pad(hours);
-          elMins.textContent = pad(mins);
-          elSecs.textContent = pad(secs);
+        if (enterSection) {
+          enterSection.innerHTML = `
+            <a href="${GFG_ROUND0_URL}" target="_blank" rel="noopener noreferrer"
+              class="inline-block bg-accent hover:bg-glow text-black font-bold px-10 py-4 rounded-full text-xl transition duration-300 transform hover:scale-110 shadow-lg">
+              ROUND 0 IS LIVE ⚔ (GO TO GFG)
+            </a>
+          `;
         }
+        return;
       }
 
-      // Initial call
-      updateCountdown();
-      // Start interval
-      timerInterval = setInterval(updateCountdown, 1000);
+      // ── 1. ROUND 1: ?round=1 ──────────────────────────────────
+      if (requestedStage === "round1") {
+        if (countdownHeading) countdownHeading.innerText = "ROUND 1 IS LIVE";
+        if (countdownTimer) countdownTimer.style.display = "none";
+
+        if (registerBtn) {
+          registerBtn.innerHTML = `ENTER ROUND 1 ⚔`;
+          registerBtn.disabled = false;
+          registerBtn.classList.add("register-open");
+          registerBtn.classList.remove("register-closed");
+          registerBtn.onclick = () => {
+            window.location.href = `${CONTEST_PLATFORM_URL}/login?round=1`;
+          };
+        }
+
+        if (enterSection) {
+          enterSection.innerHTML = `
+            <a href="${CONTEST_PLATFORM_URL}/login?round=1"
+              class="inline-block bg-accent hover:bg-glow text-black font-bold px-10 py-4 rounded-full text-xl transition duration-300 transform hover:scale-110 shadow-lg">
+              ENTER ROUND 1 ⚔
+            </a>
+          `;
+        }
+        return;
+      }
+
+      // ── 2. ROUND 2 PHASE 1: ?round=2&phase=1 ──────────────────
+      if (requestedStage === "round2_phase1") {
+        if (countdownHeading) countdownHeading.innerText = "ROUND 2 — PHASE 1 IS LIVE";
+        if (countdownTimer) countdownTimer.style.display = "none";
+
+        function renderR2P1() {
+          const hasStarted = sessionStorage.getItem("coc_r2p1_reg_started") === "true";
+
+          if (registerBtn) {
+            registerBtn.innerHTML = `REGISTER FOR PHASE 1 📝`;
+            registerBtn.disabled = false;
+            registerBtn.classList.add("register-open");
+            registerBtn.classList.remove("register-closed");
+            registerBtn.onclick = () => {
+              sessionStorage.setItem("coc_r2p1_reg_started", "true");
+              window.open(HACKERRANK_R2_PHASE1_REG_URL, "_blank");
+              renderR2P1();
+            };
+          }
+
+          if (enterSection) {
+            enterSection.innerHTML = `
+              <div class="flex flex-col items-center gap-4">
+                <button id="r2p1-reg-action"
+                  class="inline-block bg-accent hover:bg-glow text-black font-bold px-8 py-3.5 rounded-full text-lg transition duration-300 transform hover:scale-105 shadow-lg">
+                  1. REGISTER FOR PHASE 1 ON HACKERRANK 📝
+                </button>
+                ${
+                  hasStarted
+                    ? `<a href="${CONTEST_PLATFORM_URL}/login?round=2&phase=1"
+                         class="inline-block bg-[#FFD700] hover:bg-[#FFC451] text-black font-bold px-10 py-4 rounded-full text-xl transition duration-300 transform hover:scale-110 shadow-lg animate-pulse">
+                         2. ENTER PHASE 1 (ARENA LOGIN) ⚔ →
+                       </a>`
+                    : `<p class="text-sm text-gray-400">Step 1: Click the register button above to unlock Step 2.</p>`
+                }
+              </div>
+            `;
+            const regBtn = document.getElementById("r2p1-reg-action");
+            if (regBtn) {
+              regBtn.onclick = () => {
+                sessionStorage.setItem("coc_r2p1_reg_started", "true");
+                window.open(HACKERRANK_R2_PHASE1_REG_URL, "_blank");
+                renderR2P1();
+              };
+            }
+          }
+        }
+        renderR2P1();
+        return;
+      }
+
+      // ── 3. ROUND 2 PHASE 2: ?round=2&phase=2 ──────────────────
+      if (requestedStage === "round2_phase2") {
+        if (countdownHeading) countdownHeading.innerText = "ROUND 2 — PHASE 2 IS LIVE";
+        if (countdownTimer) countdownTimer.style.display = "none";
+
+        function renderR2P2() {
+          const hasStarted = sessionStorage.getItem("coc_r2p2_reg_started") === "true";
+
+          if (registerBtn) {
+            registerBtn.innerHTML = `REGISTER FOR PHASE 2 🛡️`;
+            registerBtn.disabled = false;
+            registerBtn.classList.add("register-open");
+            registerBtn.classList.remove("register-closed");
+            registerBtn.onclick = () => {
+              sessionStorage.setItem("coc_r2p2_reg_started", "true");
+              window.open(HACKERRANK_R2_PHASE2_REG_URL, "_blank");
+              renderR2P2();
+            };
+          }
+
+          if (enterSection) {
+            enterSection.innerHTML = `
+              <div class="flex flex-col items-center gap-4">
+                <button id="r2p2-reg-action"
+                  class="inline-block bg-accent hover:bg-glow text-black font-bold px-8 py-3.5 rounded-full text-lg transition duration-300 transform hover:scale-105 shadow-lg">
+                  1. REGISTER FOR PHASE 2 ON HACKERRANK 🛡️
+                </button>
+                ${
+                  hasStarted
+                    ? `<a href="${CONTEST_PLATFORM_URL}/login?round=2&phase=2"
+                         class="inline-block bg-[#FFD700] hover:bg-[#FFC451] text-black font-bold px-10 py-4 rounded-full text-xl transition duration-300 transform hover:scale-110 shadow-lg animate-pulse">
+                         2. ENTER PHASE 2 (ARENA LOGIN) ⚔ →
+                       </a>`
+                    : `<p class="text-sm text-gray-400">Step 1: Click the register button above to unlock Step 2.</p>`
+                }
+              </div>
+            `;
+            const regBtn = document.getElementById("r2p2-reg-action");
+            if (regBtn) {
+              regBtn.onclick = () => {
+                sessionStorage.setItem("coc_r2p2_reg_started", "true");
+                window.open(HACKERRANK_R2_PHASE2_REG_URL, "_blank");
+                renderR2P2();
+              };
+            }
+          }
+        }
+        renderR2P2();
+        return;
+      }
+
+      // ── 4. ROUND 2 PHASE 3: ?round=2&phase=3 ──────────────────
+      if (requestedStage === "round2_phase3") {
+        if (countdownHeading) countdownHeading.innerText = "ROUND 2 — PHASE 3 IS LIVE";
+        if (countdownTimer) countdownTimer.style.display = "none";
+
+        function renderR2P3() {
+          const hasStarted = sessionStorage.getItem("coc_r2p3_reg_started") === "true";
+
+          if (registerBtn) {
+            registerBtn.innerHTML = `REGISTER FOR PHASE 3 ⚡`;
+            registerBtn.disabled = false;
+            registerBtn.classList.add("register-open");
+            registerBtn.classList.remove("register-closed");
+            registerBtn.onclick = () => {
+              sessionStorage.setItem("coc_r2p3_reg_started", "true");
+              window.open(HACKERRANK_R2_PHASE3_REG_URL, "_blank");
+              renderR2P3();
+            };
+          }
+
+          if (enterSection) {
+            enterSection.innerHTML = `
+              <div class="flex flex-col items-center gap-4">
+                <button id="r2p3-reg-action"
+                  class="inline-block bg-accent hover:bg-glow text-black font-bold px-8 py-3.5 rounded-full text-lg transition duration-300 transform hover:scale-105 shadow-lg">
+                  1. REGISTER FOR PHASE 3 ON HACKERRANK ⚡
+                </button>
+                ${
+                  hasStarted
+                    ? `<a href="${CONTEST_PLATFORM_URL}/login?round=2&phase=3"
+                         class="inline-block bg-[#FFD700] hover:bg-[#FFC451] text-black font-bold px-10 py-4 rounded-full text-xl transition duration-300 transform hover:scale-110 shadow-lg animate-pulse">
+                         2. ENTER PHASE 3 (ARENA LOGIN) ⚔ →
+                       </a>`
+                    : `<p class="text-sm text-gray-400">Step 1: Click the register button above to unlock Step 2.</p>`
+                }
+              </div>
+            `;
+            const regBtn = document.getElementById("r2p3-reg-action");
+            if (regBtn) {
+              regBtn.onclick = () => {
+                sessionStorage.setItem("coc_r2p3_reg_started", "true");
+                window.open(HACKERRANK_R2_PHASE3_REG_URL, "_blank");
+                renderR2P3();
+              };
+            }
+          }
+        }
+        renderR2P3();
+        return;
+      }
+
+      // ── 5. DEFAULT PRE-EVENT COUNTDOWN LOGIC ───────────────────
+      function initDefaultCountdown() {
+        var openDate = new Date("2026-08-06T21:00:00+05:30").getTime();
+        var closeDate = new Date("2026-08-19T21:00:00+05:30").getTime();
+        
+        var elDays = document.getElementById("cd-days");
+        var elHours = document.getElementById("cd-hours");
+        var elMins = document.getElementById("cd-mins");
+        var elSecs = document.getElementById("cd-secs");
+        var wrapper = document.getElementById("countdown-timer");
+        var headingSpan = document.querySelector("h2 span");
+        var timerInterval = null;
+
+        function pad(n) {
+          return String(Math.max(0, n)).padStart(2, "0");
+        }
+
+        function updateCountdown() {
+          var now = new Date().getTime();
+          var targetDate = null;
+          var phaseStatus = 1;
+
+          if (now < openDate) {
+            phaseStatus = 1;
+            targetDate = openDate;
+          } else if (now >= openDate && now < closeDate) {
+            phaseStatus = 2;
+            targetDate = closeDate;
+          } else {
+            phaseStatus = 3;
+          }
+
+          if (phaseStatus === 1) {
+            if (headingSpan) headingSpan.innerText = "REGISTRATIONS OPEN IN";
+            if (registerBtn) {
+              registerBtn.innerText = 'Registrations open on 6th August 2026 at 9:00 PM';
+              registerBtn.disabled = true;
+              registerBtn.classList.remove('register-open', 'register-closed');
+            }
+          } else if (phaseStatus === 2) {
+            if (headingSpan) headingSpan.innerText = "REGISTRATIONS CLOSE IN";
+            if (registerBtn) {
+              if (registerBtn.disabled || !registerBtn.classList.contains('register-open')) {
+                registerBtn.innerHTML = `Register Now <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 8px; vertical-align: middle; display: inline-block;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
+                registerBtn.disabled = false;
+                registerBtn.classList.add('register-open');
+                registerBtn.classList.remove('register-closed');
+              }
+              if (!registerBtn.hasAttribute('data-listener-attached')) {
+                registerBtn.addEventListener('click', function() {
+                  var enterContestSection = document.getElementById('enter-contest-section');
+                  if (enterContestSection) {
+                    var targetPosition =
+                        enterContestSection.getBoundingClientRect().top +
+                        window.scrollY -
+                        120;
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                  }
+                });
+                registerBtn.setAttribute('data-listener-attached', 'true');
+              }
+            }
+          } else if (phaseStatus === 3) {
+            if (headingSpan) headingSpan.innerText = "REGISTRATIONS ARE CLOSED";
+            if (registerBtn) {
+              registerBtn.innerText = 'Registrations are closed';
+              registerBtn.disabled = true;
+              registerBtn.classList.add('register-closed');
+              registerBtn.classList.remove('register-open');
+            }
+            if (wrapper) {
+              wrapper.innerHTML = '<span style="color:#FFD700;font-weight:700;font-size:1.1rem;">Registrations are Closed!</span>';
+            }
+            if (timerInterval) clearInterval(timerInterval);
+            return;
+          }
+
+          if (targetDate) {
+            var diff = targetDate - now;
+            if (diff <= 0) {
+              if (elDays) elDays.textContent = "00";
+              if (elHours) elHours.textContent = "00";
+              if (elMins) elMins.textContent = "00";
+              if (elSecs) elSecs.textContent = "00";
+            } else {
+              var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+              var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              var mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+              var secs = Math.floor((diff % 1000) / 1000);
+
+              if (elDays) elDays.textContent = pad(days);
+              if (elHours) elHours.textContent = pad(hours);
+              if (elMins) elMins.textContent = pad(mins);
+              if (elSecs) elSecs.textContent = pad(secs);
+            }
+          }
+        }
+
+        updateCountdown();
+        timerInterval = setInterval(updateCountdown, 1000);
+      }
     })();
 
     // --- Mobile Menu Logic ---
