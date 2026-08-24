@@ -259,39 +259,78 @@
             Registrations open on 6th August 2026 at 9:00 PM
         </button>
 
-        <h2 style="font-family: 'Clash', sans-serif; text-align: center; margin-top: 2rem; color: #fff; font-size: 1.25rem;">
+                  <h2 id="reg-close-text" style="font-family: 'Clash', sans-serif; text-align: center; margin-top: 2rem; color: #fff; font-size: 1.25rem;">
             <span>REGISTRATIONS CLOSE IN</span>
         </h2>
         <br>
 
        <!-- Countdown Timer -->
-      <div id="countdown-timer" class="countdown-timer" aria-live="polite">
-        <div class="countdown-unit">
-          <span class="countdown-value" id="cd-days">00</span>
-          <span class="countdown-label">Days</span>
-        </div>
-        <span class="countdown-sep">:</span>
-        <div class="countdown-unit">
-          <span class="countdown-value" id="cd-hours">00</span>
-          <span class="countdown-label">Hours</span>
-        </div>
-        <span class="countdown-sep">:</span>
-        <div class="countdown-unit">
-          <span class="countdown-value" id="cd-mins">00</span>
-          <span class="countdown-label">Mins</span>
-        </div>
-        <span class="countdown-sep">:</span>
-        <div class="countdown-unit">
-          <span class="countdown-value" id="cd-secs">00</span>
-          <span class="countdown-label">Secs</span>
-        </div>
-      </div>
+                <div id="countdown-timer" class="countdown-timer" aria-live="polite">
+            <div class="countdown-unit">
+              <span class="countdown-value" id="cd-days">00</span>
+              <span class="countdown-label">Days</span>
+            </div>
+            <span class="countdown-sep">:</span>
+            <div class="countdown-unit">
+              <span class="countdown-value" id="cd-hours">00</span>
+              <span class="countdown-label">Hours</span>
+            </div>
+            <span class="countdown-sep">:</span>
+            <div class="countdown-unit">
+              <span class="countdown-value" id="cd-mins">00</span>
+              <span class="countdown-label">Mins</span>
+            </div>
+            <span class="countdown-sep">:</span>
+            <div class="countdown-unit">
+              <span class="countdown-value" id="cd-secs">00</span>
+              <span class="countdown-label">Secs</span>
+            </div>
+          </div>
 
-        <div class="scroll-down">
+          <!-- Round 0 Countdown Wrapper -->
+          <div id="round0-timer-wrapper" style="display:none; text-align:center; margin-top: 2rem;">
+            <h2 style="font-family: 'Clash', sans-serif; color: #fff; font-size: 1.25rem; margin-bottom: 1rem;">ROUND 0 will start in</h2>
+            <div class="countdown-timer">
+              <div class="countdown-unit">
+                <span class="countdown-value" id="r0-days">00</span>
+                <span class="countdown-label">Days</span>
+              </div>
+              <span class="countdown-sep">:</span>
+              <div class="countdown-unit">
+                <span class="countdown-value" id="r0-hours">00</span>
+                <span class="countdown-label">Hours</span>
+              </div>
+              <span class="countdown-sep">:</span>
+              <div class="countdown-unit">
+                <span class="countdown-value" id="r0-mins">00</span>
+                <span class="countdown-label">Mins</span>
+              </div>
+              <span class="countdown-sep">:</span>
+              <div class="countdown-unit">
+                <span class="countdown-value" id="r0-secs">00</span>
+                <span class="countdown-label">Secs</span>
+              </div>
+            </div>
+          </div>
+
+            <div class="scroll-down">
 
             <span></span>
-
-          
+            
+            <a
+            id="enter-contest-btn"
+            href="https://practice.geeksforgeeks.org/contest/clash-of-coders"
+            target="_blank"
+            style="display:none; margin-top:20px;"
+            >
+            <h2 style="font-family: 'Clash', sans-serif; color: #fff; font-size: 1.25rem; margin-bottom: 1rem;">
+            <button style=" margin: 24px auto 0;width: 320px;  max-width: 90%;  text-align: center;" id="rd-toggle" 
+        class="rd-toggle-btn inline-flex items-center justify-center gap-2 bg-accent hover:bg-glow text-black font-bold px-8 py-3.5 rounded-full text-sm md:text-base tracking-wide">
+        Enter ROUND-0 Contest
+      </button>
+      
+            </h2>
+          </a>
 
         </div>
 </div>
@@ -366,24 +405,79 @@
 
     <!-- Announcements List -->
     <div class="space-y-4">
+      <!--4th Announcement-->
+      <div class="bg-secondary p-6 rounded-xl shadow-xl">
+        <h4 class="text-xl font-semibold text-accent mb-3">
+            📢 Team Leaders Orientation Program 
+        </h4>
 
-        <!-- 1st Announcement -->
+        <p class="text-gray-300 leading-8 text-lg">
+            All Team Leaders are invited to join the team leaders orientation program 
+            <br>Instructions regarding the contest, rules, rounds and other process will be explained.<br>
+            <span style ="color:#FFD700;">Date: 21.08.2026</span><br>
+            <span style ="color:#FFD700;">Time: 8:00 - 8:30 PM</span>
+            <br><br>
+            <span style ="color:#FFD700;">NOTE :</span>
+            Since Google Meet has a limit of 100 participants , we have split the orientation into two sessions. 
+            <strong>The same content will be delivered in both meetings.</strong>
+            <br><br>
+           <!--<span style ="color:#FFD700;">2nd yr CSE Teams+ IT + AIDS +AIML</span>--> 
+            <strong>📌 LINK : (2nd yr CSE Teams + IT + AIDS + AIML) ➡️ </strong>  
+            <a href="https://meet.google.com/opf-zsym-qni"
+                   target="_blank"
+                   class="text-accent font-semibold hover:underline">
+                    Gmeet Link 
+                </a>
+            <br><br>
+            <strong>📌 LINK : ( 3yr CSE Teams + EEE + ECE + CSBS ) ➡️ </strong>  
+            <a href="https://meet.google.com/wqi-mhvw-pmi"
+                   target="_blank"
+                   class="text-accent font-semibold hover:underline">
+                    Gmeet Link 
+                </a>
+                <br><br>
+        </p>
+    </div>
+      <!-- 3rd Announcement -->
        <div class="bg-secondary p-6 rounded-xl shadow-xl">
         <h4 class="text-xl font-semibold text-accent mb-3">
-            📢 Important Notice – Clash of Coders
+            📢 Round-0 GeeksforGeeks Portal Registration 
+        </h4>
+
+        <p class="text-gray-300 leading-8 text-lg">
+            All participants must register on the GeeksforGeeks Portal for Round-0
+            <br>Every member of your team ( all 3 members ) must complete the registration individually.
+            This is additional to the GForm Registration that is already done. 
+            <br><br>
+            <span style ="color:#FFD700;">NOTE :</span>
+            A team's registration will be considered valid only if all three members are registered.
+            <br><br>
+            <strong>📌 LINK:</strong>  
+            <a href="https://practice.geeksforgeeks.org/contest/clash-of-coders"
+                   target="_blank"
+                   class="text-accent font-semibold hover:underline">
+                    Register Now 
+                </a>
+            <br><br>
+        </p>
+    </div>
+
+        <!-- 2nd Announcement -->
+       <div class="bg-secondary p-6 rounded-xl shadow-xl">
+        <h4 class="text-xl font-semibold text-accent mb-3">
+            📢 Round 0 Details Released
         </h4>
 
         <p class="text-gray-300 leading-8 text-lg">
             On <strong>22nd August</strong>, several departments have Internal Exams.
-            The <strong>Online Round 0 of Clash of Coders</strong> will be held the same evening
-            (timings will be announced soon).
+            The <strong>Online Round 0 of Clash of Coders</strong> will be held on the same evening.</br>
+            <p style ="color:#FFD700;">Timings: 6:00 PM - 7:30 PM</p> 
             <br><br>
             📌 Please plan your hometown travel accordingly to ensure you don't miss the competition. 🚀
             <br><br>
-            <strong>This contest is worth every bit ....💯</strong>
         </p>
     </div>
-     <!-- 2nd Announcement -->
+     <!-- 1st Announcement -->
         <div class="bg-secondary p-6 rounded-xl shadow-xl">
             <h4 class="text-xl font-semibold text-accent mb-3">
                 📢 Stay Updated!
@@ -450,10 +544,10 @@
           Round 0 – Codefront: The Battle Begins (Online)
         </h3>
         <ul class="list-disc ml-6 space-y-2">
-          <li>Each land has a fixed entry limit (first-come, first-served).</li>
-          <li>A team can participate in a maximum of two lands.</li>
-          <li>Only one member per team per land.</li>
-          <li>Highest scorer conquers the land.</li>
+          <li>Round 0 will be conducted on the GeeksforGeeks (GFG) Platform.</li>
+          <li>All three team members must attempt the coding questions individually.</li>
+          <li>The team's score will be evaluated based on the aggregate score of all three members.</li>
+          <li>Highest scores advance to next round</li>
           <!-- <li>Each team conquers strictly one land at end of Round 0.</li> -->
         </ul>
       </div>
@@ -463,7 +557,20 @@
         <h3 class="text-2xl text-accent mb-4">
           Round 1 – Code Warfare: The Strategic Conquest (Offline)
         </h3>
+        <ul class="list-disc ml-6 space-y-2">
+          <li>All lands will initially be free and unclaimed.</li>
+          <li>Teams must solve a coding challenge to compete for a land.</li>
+          <li>Different team members may attempt challenges for different lands simultaneously.</li>
+          <li>At the end of the round, the team ranked highest on a land's leaderboard will conquer and claim that land.</li>
+          <!-- <li>Each team conquers strictly one land at end of Round 0.</li> -->
+        </ul>
+      </div>
 
+      <!-- Round 2 -->
+      <div class="bg-secondary p-6 rounded-xl shadow-xl mb-10">
+        <h3 class="text-2xl text-accent mb-4">
+          Round 2 – Final Conquest (Offline)
+        </h3>
         <h4 class="text-xl text-glow mt-4 mb-2">Attacking Phase</h4>
         <ul class="list-disc ml-6 space-y-2">
           <li>Teams may attempt to conquer new lands.</li>
@@ -480,14 +587,6 @@
           <li>Strict time limit will be provided.</li>
           <li>Top teams with highest conquered lands advance.</li>
         </ul>
-      </div>
-
-      <!-- Round 2 -->
-      <div class="bg-secondary p-6 rounded-xl shadow-xl mb-10">
-        <h3 class="text-2xl text-accent mb-4">
-          Round 2 – Final Conquest (Offline)
-        </h3>
-        <p class="text-lg text-gray-300">Details to be revealed soon…</p>
       </div>
 </div>
 <!-- ═══════════════════════════════════════════════════════════ -->
@@ -960,7 +1059,8 @@
 </style>
 
 <script>
-  const DASHBOARD_API_URL = "https://script.google.com/macros/s/AKfycbymDjZP_8MQ-N2YQ6aTB286EVoHs8kAhuCbUPFLR6hfmiVRsdIXTxmlG0aSCdMt_C51/exec";
+  //original API key : const DASHBOARD_API_URL = "https://script.google.com/macros/s/AKfycbyHOM2wMxVT4TJWIoJ4kDQVbAwz93yes3zSvwF1U55X07xr6sy_6OJt89DM6mmgDLvC/exec
+  const DASHBOARD_API_URL = "https://script.google.com/macros/s/AKfycbyHOM2wMxVT4TJWIoJ4kDQVbAwz93yes3zSvwF1U55X07xr6sy_6OJt89DM6mmgDLvC/exe";
   const DASHBOARD_API_KEY = "8f3d91a7c4e2b5f68d90ab13ef76c24891d7e5b2c3a4f6819e0d5c7b8a2f6e41"; 
   const FALLBACK_JSON_URL = "./fallback-stats.json";
 
@@ -1018,7 +1118,7 @@
     }).join('');
   }
 
-  function rdSetUpdatedLabel(iso, state) {
+function rdSetUpdatedLabel(iso, state) {
     var el = document.getElementById('rd-updated');
     if (!el) return;
     if (state === 'offline') { el.textContent = '· not connected'; el.className = 'text-xs text-danger'; return; }
@@ -1027,7 +1127,7 @@
     var timeStr = isNaN(d.getTime()) ? 'just now' : d.toLocaleTimeString();
     el.textContent = '· updated ' + timeStr;
     el.className = 'text-xs text-gray-600';
-  }
+}
 
     function rdSetRefreshing(isRefreshing) {
     var btn = document.getElementById('rd-refresh-btn');
